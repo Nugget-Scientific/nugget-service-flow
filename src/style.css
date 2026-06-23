@@ -1,0 +1,3 @@
+.edgeLabel, .edgeLabel p { font-size: 13px; }
+.node rect, .node polygon, .node path { rx: 8px; ry: 8px; }
+.cluster rect { rx: 14px; ry: 14px; }

@@ -1,0 +1,103 @@
+---
+config:
+  theme: base
+  fontFamily: 'Helvetica, Arial, sans-serif'
+  themeVariables:
+    fontFamily: 'Helvetica, Arial, sans-serif'
+    fontSize: 15px
+    lineColor: '#6B7A8A'
+    primaryColor: '#E6F1FB'
+    primaryBorderColor: '#185FA5'
+    primaryTextColor: '#0C447C'
+    edgeLabelBackground: '#FFFFFF'
+    titleColor: '#0C447C'
+  flowchart:
+    curve: basis
+    htmlLabels: true
+    nodeSpacing: 50
+    rankSpacing: 80
+    padding: 16
+    useMaxWidth: false
+---
+flowchart LR
+    %% ---- Main flow ----
+    Triage["Triage"]
+    SchedReq["Scheduling Required"]
+    Tentative["Tentatively Scheduled"]
+    PendingClient["Scheduled Pending Client"]
+    Booked["Booked"]
+    Working["Working Now"]
+    Resolved["Resolved – Pending Report"]
+    ReportSent["Report Sent – Awaiting Close"]
+    Closed["Closed"]
+
+    %% ---- Exceptions / off-ramps ----
+    AwaitingInfo["Awaiting Info from Sales"]
+    AwaitingParts["Awaiting Parts"]
+    SME["Escalated to SME"]
+    Monitoring["Monitoring"]
+    Canceled["Client Canceled"]
+
+    %% ---- Intake: how work becomes a ticket ----
+    subgraph Intake["How Work Becomes a Ticket"]
+        direction TB
+        RoutineComms["Routine Service Comes Due"]
+        ClientEmail["Client Emails Support"]
+        NewSale["New Sale"]
+        ShoulderTap["&ldquo;Shoulder Taps&rdquo;<br/>(In Person or Via Text)"]
+    end
+
+    RoutineComms --> Triage
+    ClientEmail --> Triage
+    NewSale --> Triage
+    ShoulderTap --> Triage
+
+    %% ---- Happy path ----
+    Triage -->|needs scheduling| SchedReq
+    SchedReq --> Tentative
+    SchedReq -->|no flight needed| Booked
+    Tentative --> PendingClient
+    PendingClient --> Booked
+    Booked --> Working
+    Working --> Resolved
+    Resolved --> ReportSent
+    ReportSent --> Closed
+
+    %% ---- Triage branches ----
+    Triage -->|quote needed| AwaitingInfo
+    Triage -->|date in mind| Tentative
+    Triage -->|P1, date set| PendingClient
+    Triage -->|repeat issue| SME
+    Triage -->|part needed| AwaitingParts
+
+    %% ---- Returns to the dispatcher queue ----
+    AwaitingInfo -->|info received| SchedReq
+    AwaitingParts -->|part arrived| SchedReq
+    SME -->|plan ready| SchedReq
+    SME -->|part needed| AwaitingParts
+
+    %% ---- Field escalation ----
+    Working -->|can't resolve on site| SME
+
+    %% ---- Monitoring loop ----
+    ReportSent -->|repeat or VIP client| Monitoring
+    Monitoring -->|all clear| ReportSent
+    Monitoring -.->|issue recurs, new ticket| Triage
+
+    %% ---- Cancellation (can enter from any scheduled stage) ----
+    Canceled -->|cleanup done| Closed
+
+    %% ---- Follow-up ----
+    Closed -.->|follow-up, new ticket| Triage
+
+    %% ---- Styling ----
+    classDef main   fill:#E6F1FB,stroke:#185FA5,color:#0C447C,stroke-width:1.5px;
+    classDef exc    fill:#FAEEDA,stroke:#854F0B,color:#633806,stroke-width:1.5px;
+    classDef done   fill:#EAF3DE,stroke:#3B6D11,color:#173404,stroke-width:1.5px;
+    classDef intake fill:#EFE8FB,stroke:#6D3CB0,color:#3E2173,stroke-width:1.5px;
+
+    class Triage,SchedReq,Tentative,PendingClient,Booked,Working,Resolved,ReportSent main;
+    class AwaitingInfo,AwaitingParts,SME,Monitoring,Canceled exc;
+    class Closed done;
+    class RoutineComms,ClientEmail,NewSale,ShoulderTap intake;
+    style Intake fill:#FBFAFE,stroke:#B9A6DE,stroke-width:1.5px,color:#3E2173;

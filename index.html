@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nugget Service Scheduling Flow</title>
+<meta name="description" content="Service ticket lifecycle — how work becomes a ticket, through scheduling, to close.">
+<meta property="og:title" content="Nugget Service Scheduling Flow">
+<meta property="og:description" content="Service ticket lifecycle — intake to close.">
+<meta property="og:image" content="assets/diagram.png">
+<style>
+  :root{
+    --navy:#0C447C; --cyan:#35A8DC; --ink:#1f2d3d; --muted:#5B6B7B;
+    --bg:#f4f7fa; --panel:#fff; --border:#e2e8f0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);
+    display:flex;flex-direction:column;height:100vh;overflow:hidden;
+  }
+  header{
+    background:var(--panel);border-bottom:1px solid var(--border);
+    padding:13px 22px;display:flex;align-items:center;gap:22px;flex:none;
+    box-shadow:0 1px 3px rgba(15,40,75,.06);
+  }
+  .brand{display:flex;flex-direction:column;min-width:0}
+  .brand h1{margin:0;font-size:22px;font-weight:800;color:var(--navy);letter-spacing:.2px;white-space:nowrap}
+  .brand .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .brand .accent{height:4px;width:62px;background:var(--cyan);border-radius:2px;margin-top:6px}
+  .spacer{flex:1 1 auto}
+  .legend{display:flex;gap:15px;flex-wrap:wrap;align-items:center}
+  .legend .chip{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);white-space:nowrap}
+  .legend .sw{width:14px;height:14px;border-radius:4px;border:1.5px solid}
+  .sw.intake{background:#EFE8FB;border-color:#6D3CB0}
+  .sw.main{background:#E6F1FB;border-color:#185FA5}
+  .sw.exc{background:#FAEEDA;border-color:#854F0B}
+  .sw.done{background:#EAF3DE;border-color:#3B6D11}
+  .toolbar{display:flex;gap:8px;align-items:center}
+  .toolbar button{
+    font:inherit;font-size:14px;border:1px solid var(--border);background:#fff;color:var(--navy);
+    min-width:38px;padding:7px 12px;border-radius:9px;cursor:pointer;line-height:1;
+  }
+  .toolbar button:hover{background:#f0f5fb;border-color:#cdd9e6}
+  .toolbar a{text-decoration:none}
+  .logo{height:46px;flex:none}
+  #stage{
+    flex:1 1 auto;overflow:auto;cursor:grab;
+    background:radial-gradient(circle at 1px 1px,#dde5ee 1px,transparent 0) 0 0/22px 22px,var(--bg);
+  }
+  #stage.dragging{cursor:grabbing}
+  #stage img{display:block;user-select:none;-webkit-user-drag:none;padding:30px}
+  .hint{
+    position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+    background:rgba(12,68,124,.92);color:#fff;font-size:12.5px;padding:8px 15px;border-radius:20px;
+    pointer-events:none;opacity:0;transition:opacity .45s;
+  }
+  .hint.show{opacity:1}
+  @media(max-width:980px){.legend{display:none}}
+  @media(max-width:620px){.brand h1{font-size:18px}.logo{height:38px}}
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Nugget Service Scheduling Flow</h1>
+      <span class="sub">Service ticket lifecycle &mdash; intake to close</span>
+      <div class="accent"></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="legend" aria-label="Legend">
+      <span class="chip"><span class="sw intake"></span>How work arrives</span>
+      <span class="chip"><span class="sw main"></span>Lifecycle</span>
+      <span class="chip"><span class="sw exc"></span>Exception / off-ramp</span>
+      <span class="chip"><span class="sw done"></span>Closed</span>
+    </div>
+    <div class="toolbar">
+      <button id="zoomout" title="Zoom out">&minus;</button>
+      <button id="zoomin"  title="Zoom in">&plus;</button>
+      <button id="fit"     title="Fit to screen">Fit</button>
+      <a href="assets/diagram.png" download title="Download PNG"><button>PNG</button></a>
+    </div>
+    <img class="logo" src="assets/logo.png" alt="Nugget Scientific">
+  </header>
+
+  <div id="stage">
+    <img id="diagram" src="assets/diagram.svg" alt="Nugget Service Scheduling Flow diagram">
+  </div>
+  <div class="hint" id="hint">Drag to pan &middot; +/&minus; to zoom &middot; scroll to move</div>
+
+  <script>
+  (function () {
+    const stage = document.getElementById('stage');
+    const img   = document.getElementById('diagram');
+    let fitHeight = 0, scale = 1;
+    const MIN = 0.4, MAX = 6;
+
+    // Fit the diagram to the stage height so it scrolls horizontally by default.
+    function fit() {
+      fitHeight = Math.max(120, stage.clientHeight - 60);
+      scale = 1; apply(); stage.scrollLeft = 0; stage.scrollTop = 0;
+    }
+    function apply() { img.style.height = (fitHeight * scale) + 'px'; img.style.width = 'auto'; }
+
+    // Zoom while keeping the point under the cursor stable.
+    function zoom(factor, cx, cy) {
+      const r = stage.getBoundingClientRect();
+      cx = (cx == null) ? r.width / 2 : cx;
+      cy = (cy == null) ? r.height / 2 : cy;
+      const rx = (stage.scrollLeft + cx) / (img.offsetWidth  || 1);
+      const ry = (stage.scrollTop  + cy) / (img.offsetHeight || 1);
+      scale = Math.min(MAX, Math.max(MIN, scale * factor)); apply();
+      stage.scrollLeft = rx * img.offsetWidth  - cx;
+      stage.scrollTop  = ry * img.offsetHeight - cy;
+    }
+
+    document.getElementById('zoomin').onclick  = () => zoom(1.2);
+    document.getElementById('zoomout').onclick = () => zoom(1 / 1.2);
+    document.getElementById('fit').onclick     = fit;
+
+    // Drag to pan.
+    let dragging = false, sx, sy, sl, st;
+    stage.addEventListener('pointerdown', e => {
+      dragging = true; stage.classList.add('dragging');
+      sx = e.clientX; sy = e.clientY; sl = stage.scrollLeft; st = stage.scrollTop;
+      stage.setPointerCapture(e.pointerId);
+    });
+    stage.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      stage.scrollLeft = sl - (e.clientX - sx);
+      stage.scrollTop  = st - (e.clientY - sy);
+    });
+    const endDrag = () => { dragging = false; stage.classList.remove('dragging'); };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    // Ctrl/Cmd + wheel zooms; plain wheel (and Shift+wheel) scrolls natively.
+    stage.addEventListener('wheel', e => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const r = stage.getBoundingClientRect();
+        zoom(e.deltaY < 0 ? 1.1 : 1 / 1.1, e.clientX - r.left, e.clientY - r.top);
+      }
+    }, { passive: false });
+
+    // Keyboard: +/- zoom, 0 fits.
+    window.addEventListener('keydown', e => {
+      if (e.key === '+' || e.key === '=') zoom(1.2);
+      else if (e.key === '-' || e.key === '_') zoom(1 / 1.2);
+      else if (e.key === '0') fit();
+    });
+
+    function ready() {
+      fit();
+      const h = document.getElementById('hint');
+      h.classList.add('show'); setTimeout(() => h.classList.remove('show'), 3800);
+    }
+    img.addEventListener('load', ready);
+    if (img.complete && img.naturalWidth) ready();
+    window.addEventListener('resize', () => { if (scale === 1) fit(); });
+  })();
+  </script>
+</body>
+</html>
