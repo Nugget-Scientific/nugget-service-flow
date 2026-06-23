@@ -4,7 +4,7 @@ An interactive, horizontally-scrollable view of the service ticket lifecycle —
 from how work first becomes a ticket, through scheduling, to close. Built for
 onboarding and reference by the Field Service team.
 
-**Live site:** _(GitHub Pages URL goes here once Pages is enabled)_
+**Live site:** https://nugget-scientific.github.io/nugget-service-flow/
 
 ## What it shows
 
