@@ -16,8 +16,11 @@ config:
     htmlLabels: true
     nodeSpacing: 50
     rankSpacing: 80
-    padding: 16
+    padding: 24
     useMaxWidth: false
+    subGraphTitleMargin:
+      top: 18
+      bottom: 26
 ---
 flowchart LR
     %% ---- Main flow ----
@@ -43,7 +46,7 @@ flowchart LR
         direction TB
         RoutineComms["Routine Service Comes Due"]
         ClientEmail["Client Emails Support"]
-        NewSale["New Sale"]
+        NewSale["Sales Order"]
         ShoulderTap["&ldquo;Shoulder Taps&rdquo;<br/>(In Person or Via Text)"]
     end
 
