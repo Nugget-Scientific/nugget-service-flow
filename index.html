@@ -51,13 +51,22 @@
   #stage.dragging{cursor:grabbing}
   #stage img{display:block;user-select:none;-webkit-user-drag:none;padding:30px}
   .hint{
-    position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+    position:fixed;bottom:74px;left:50%;transform:translateX(-50%);
     background:rgba(12,68,124,.92);color:#fff;font-size:12.5px;padding:8px 15px;border-radius:20px;
     pointer-events:none;opacity:0;transition:opacity .45s;
   }
   .hint.show{opacity:1}
+  .leglabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#9aa7b4;margin-right:2px}
+  .ownerbar{
+    background:var(--panel);border-top:1px solid var(--border);
+    padding:9px 22px;display:flex;align-items:center;gap:10px 20px;flex:none;flex-wrap:wrap;
+    box-shadow:0 -1px 3px rgba(15,40,75,.05);
+  }
+  .ownerbar .title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--navy)}
+  .ochip{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);white-space:nowrap}
+  .ochip .ob{width:15px;height:15px;border-radius:4px;background:#fff;border:2.5px solid;flex:none}
   @media(max-width:980px){.legend{display:none}}
-  @media(max-width:620px){.brand h1{font-size:18px}.logo{height:38px}}
+  @media(max-width:620px){.brand h1{font-size:18px}.logo{height:38px}.ownerbar .title{display:none}}
 </style>
 </head>
 <body>
@@ -68,7 +77,8 @@
       <div class="accent"></div>
     </div>
     <div class="spacer"></div>
-    <div class="legend" aria-label="Legend">
+    <div class="legend" aria-label="Phase legend">
+      <span class="leglabel">Phase</span>
       <span class="chip"><span class="sw intake"></span>How work arrives</span>
       <span class="chip"><span class="sw main"></span>Lifecycle</span>
       <span class="chip"><span class="sw exc"></span>Exception / off-ramp</span>
@@ -86,6 +96,18 @@
   <div id="stage">
     <img id="diagram" src="assets/diagram.svg" alt="Nugget Service Scheduling Flow diagram">
   </div>
+
+  <footer class="ownerbar" aria-label="Process ownership — node border color">
+    <span class="title">Owner&nbsp;(border)</span>
+    <span class="ochip"><span class="ob" style="border-color:#1E6FB0"></span>Dispatcher / Scheduler</span>
+    <span class="ochip"><span class="ob" style="border-color:#0E8A6E"></span>Field Engineer</span>
+    <span class="ochip"><span class="ob" style="border-color:#D9690C"></span>Sales</span>
+    <span class="ochip"><span class="ob" style="border-color:#C0392B"></span>SME</span>
+    <span class="ochip"><span class="ob" style="border-color:#7E3FA8"></span>Procurement / Parts</span>
+    <span class="ochip"><span class="ob" style="border-color:#B5277E"></span>Account Mgr / Service Lead</span>
+    <span class="ochip"><span class="ob" style="border-color:#5B6B7B"></span>Client</span>
+  </footer>
+
   <div class="hint" id="hint">Drag to pan &middot; +/&minus; to zoom &middot; scroll to move</div>
 
   <script>

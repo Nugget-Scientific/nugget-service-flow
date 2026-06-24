@@ -20,6 +20,13 @@ The flowchart maps a service ticket from intake to close:
 - **Closed** (green) — the terminal state, with dashed follow-up loops that open
   a fresh ticket back at Triage.
 
+Each process node is **dual-encoded**: the *fill* is its phase (above) and the
+*border color* is the owning role — Dispatcher/Scheduler, Field Engineer, Sales,
+SME, Procurement/Parts, Account Mgr/Service Lead, or Client. The owner key runs
+across the bottom of the page and the exported PNG. (The ownership mapping is a
+strawman pending sign-off; recolor via the `style ...` lines at the bottom of
+the `.mmd`.)
+
 ## Viewing
 
 Open `index.html` in a browser, or visit the live site. Drag to pan, use the

@@ -104,3 +104,27 @@ flowchart LR
     class Closed done;
     class RoutineComms,ClientEmail,NewSale,ShoulderTap intake;
     style Intake fill:#FBFAFE,stroke:#B9A6DE,stroke-width:1.5px,color:#3E2173;
+
+    %% ---- Ownership (border color = owner; fill stays = phase) ----
+    %% Strawman mapping — recolor once roles are confirmed.
+    %% Dispatcher / Scheduler
+    style Triage        stroke:#1E6FB0,stroke-width:3px;
+    style SchedReq      stroke:#1E6FB0,stroke-width:3px;
+    style Tentative     stroke:#1E6FB0,stroke-width:3px;
+    style PendingClient stroke:#1E6FB0,stroke-width:3px;
+    style Booked        stroke:#1E6FB0,stroke-width:3px;
+    style Closed        stroke:#1E6FB0,stroke-width:3px;
+    %% Field Engineer
+    style Working       stroke:#0E8A6E,stroke-width:3px;
+    style Resolved      stroke:#0E8A6E,stroke-width:3px;
+    style ReportSent    stroke:#0E8A6E,stroke-width:3px;
+    %% Sales
+    style AwaitingInfo  stroke:#D9690C,stroke-width:3px;
+    %% SME
+    style SME           stroke:#C0392B,stroke-width:3px;
+    %% Procurement / Parts
+    style AwaitingParts stroke:#7E3FA8,stroke-width:3px;
+    %% Account Manager / Service Lead
+    style Monitoring    stroke:#B5277E,stroke-width:3px;
+    %% Client
+    style Canceled      stroke:#5B6B7B,stroke-width:3px;
