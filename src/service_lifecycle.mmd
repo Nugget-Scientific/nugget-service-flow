@@ -44,18 +44,20 @@ flowchart LR
     CancelNote["Cancellation can occur from<br/>any scheduled stage"]
 
     %% ---- Intake: how work becomes a ticket ----
+    %% Mermaid stacks a TB subgraph bottom-up, so declare in REVERSE of the
+    %% desired top-to-bottom order: Sales Order, Client Emails, Routine, Shoulder Taps.
     subgraph Intake["How Work Becomes a Ticket"]
         direction TB
+        ShoulderTap["&ldquo;Shoulder Taps&rdquo;<br/>(In Person or Via Text)"]
         RoutineComms["Routine Service Comes Due"]
         ClientEmail["Client Emails Support"]
         NewSale["Sales Order"]
-        ShoulderTap["&ldquo;Shoulder Taps&rdquo;<br/>(In Person or Via Text)"]
     end
 
+    ShoulderTap --> Triage
     RoutineComms --> Triage
     ClientEmail --> Triage
     NewSale --> Triage
-    ShoulderTap --> Triage
 
     %% ---- Happy path ----
     Triage -->|needs scheduling| SchedReq
