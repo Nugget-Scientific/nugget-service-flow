@@ -30,14 +30,12 @@ RULE = (220, 227, 234)  # subtle dividers
 INK = (31, 45, 61)      # legend label text
 
 # Owner -> border color. Must match the `style ... stroke:` lines in the .mmd.
+# One entry per role that actually owns a stage in the process doc.
 OWNERS = [
     ("Dispatcher / Scheduler", (30, 111, 176)),       # #1E6FB0
     ("Field Engineer", (14, 138, 110)),               # #0E8A6E
     ("Sales", (217, 105, 12)),                        # #D9690C
-    ("SME", (192, 57, 43)),                           # #C0392B
-    ("Procurement / Parts", (126, 63, 168)),          # #7E3FA8
-    ("Account Mgr / Service Lead", (181, 39, 126)),   # #B5277E
-    ("Client", (91, 107, 123)),                       # #5B6B7B
+    ("Inventory Controller", (126, 63, 168)),         # #7E3FA8
 ]
 
 HEADER_HEIGHT = 720     # px, at the 3x render scale

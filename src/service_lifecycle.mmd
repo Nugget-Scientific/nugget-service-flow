@@ -35,11 +35,13 @@ flowchart LR
     Closed["Closed"]
 
     %% ---- Exceptions / off-ramps ----
-    AwaitingInfo["Awaiting Info from Sales"]
+    WaitingSales["Waiting on Sales"]
+    WaitingCustomer["Waiting on Customer"]
     AwaitingParts["Awaiting Parts"]
     SME["Escalated to SME"]
     Monitoring["Monitoring"]
-    Canceled["Client Canceled"]
+    Canceled["Client Canceled – Awaiting Close"]
+    CancelNote["Cancellation can occur from<br/>any scheduled stage"]
 
     %% ---- Intake: how work becomes a ticket ----
     subgraph Intake["How Work Becomes a Ticket"]
@@ -58,6 +60,7 @@ flowchart LR
     %% ---- Happy path ----
     Triage -->|needs scheduling| SchedReq
     SchedReq --> Tentative
+    SchedReq -->|date confirmed| PendingClient
     SchedReq -->|no flight needed| Booked
     Tentative --> PendingClient
     PendingClient --> Booked
@@ -67,64 +70,74 @@ flowchart LR
     ReportSent --> Closed
 
     %% ---- Triage branches ----
-    Triage -->|quote needed| AwaitingInfo
+    Triage -->|quote needed| WaitingSales
+    Triage -->|break-fix diligence| WaitingCustomer
     Triage -->|date in mind| Tentative
     Triage -->|P1, date set| PendingClient
     Triage -->|repeat issue| SME
     Triage -->|part needed| AwaitingParts
 
-    %% ---- Returns to the dispatcher queue ----
-    AwaitingInfo -->|info received| SchedReq
+    %% ---- Returns to the scheduling queue ----
+    WaitingSales -->|info received| SchedReq
+    WaitingSales -->|date + team known| Tentative
+    WaitingCustomer -->|client responds| SchedReq
+    WaitingCustomer --> Tentative
+    WaitingCustomer --> Booked
     AwaitingParts -->|part arrived| SchedReq
     SME -->|plan ready| SchedReq
+    SME -->|action needed on site| Working
     SME -->|part needed| AwaitingParts
 
     %% ---- Field escalation ----
     Working -->|can't resolve on site| SME
 
+    %% ---- Out-of-scope work found at close ----
+    ReportSent -->|out-of-scope work| WaitingSales
+
     %% ---- Monitoring loop ----
-    ReportSent -->|repeat or VIP client| Monitoring
+    ReportSent -->|repeat issue / recent PM| Monitoring
     Monitoring -->|all clear| ReportSent
-    Monitoring -.->|issue recurs, new ticket| Triage
+    Monitoring -.->|another issue, new task| Monitoring
 
     %% ---- Cancellation (can enter from any scheduled stage) ----
+    CancelNote -.-> Canceled
     Canceled -->|cleanup done| Closed
 
     %% ---- Follow-up ----
     Closed -.->|follow-up, new ticket| Triage
 
-    %% ---- Styling ----
+    %% ---- Styling: fill = phase ----
     classDef main   fill:#E6F1FB,stroke:#185FA5,color:#0C447C,stroke-width:1.5px;
     classDef exc    fill:#FAEEDA,stroke:#854F0B,color:#633806,stroke-width:1.5px;
     classDef done   fill:#EAF3DE,stroke:#3B6D11,color:#173404,stroke-width:1.5px;
     classDef intake fill:#EFE8FB,stroke:#6D3CB0,color:#3E2173,stroke-width:1.5px;
+    classDef note   fill:#FFFFFF,stroke:#9AA7B4,color:#6B7A8A,stroke-width:1px,stroke-dasharray:4 3;
 
     class Triage,SchedReq,Tentative,PendingClient,Booked,Working,Resolved,ReportSent main;
-    class AwaitingInfo,AwaitingParts,SME,Monitoring,Canceled exc;
+    class WaitingSales,WaitingCustomer,AwaitingParts,SME,Monitoring,Canceled exc;
     class Closed done;
     class RoutineComms,ClientEmail,NewSale,ShoulderTap intake;
+    class CancelNote note;
     style Intake fill:#FBFAFE,stroke:#B9A6DE,stroke-width:1.5px,color:#3E2173;
 
     %% ---- Ownership (border color = owner; fill stays = phase) ----
-    %% Strawman mapping — recolor once roles are confirmed.
+    %% Confirmed against the process doc's "Owner:" field for every stage.
     %% Dispatcher / Scheduler
-    style Triage        stroke:#1E6FB0,stroke-width:3px;
-    style SchedReq      stroke:#1E6FB0,stroke-width:3px;
-    style Closed        stroke:#1E6FB0,stroke-width:3px;
-    %% Field Engineer (Tentatively Scheduled through Booked, then the on-site work)
-    style Tentative     stroke:#0E8A6E,stroke-width:3px;
-    style PendingClient stroke:#0E8A6E,stroke-width:3px;
-    style Booked        stroke:#0E8A6E,stroke-width:3px;
-    style Working       stroke:#0E8A6E,stroke-width:3px;
-    style Resolved      stroke:#0E8A6E,stroke-width:3px;
-    style ReportSent    stroke:#0E8A6E,stroke-width:3px;
+    style Triage          stroke:#1E6FB0,stroke-width:3px;
+    style SchedReq        stroke:#1E6FB0,stroke-width:3px;
+    style WaitingCustomer stroke:#1E6FB0,stroke-width:3px;
+    style ReportSent      stroke:#1E6FB0,stroke-width:3px;
+    style SME             stroke:#1E6FB0,stroke-width:3px;
+    style Canceled        stroke:#1E6FB0,stroke-width:3px;
+    style Closed          stroke:#1E6FB0,stroke-width:3px;
+    %% Field Engineer (Tentatively Scheduled through the on-site work + monitoring)
+    style Tentative       stroke:#0E8A6E,stroke-width:3px;
+    style PendingClient   stroke:#0E8A6E,stroke-width:3px;
+    style Booked          stroke:#0E8A6E,stroke-width:3px;
+    style Working         stroke:#0E8A6E,stroke-width:3px;
+    style Resolved        stroke:#0E8A6E,stroke-width:3px;
+    style Monitoring      stroke:#0E8A6E,stroke-width:3px;
     %% Sales
-    style AwaitingInfo  stroke:#D9690C,stroke-width:3px;
-    %% SME
-    style SME           stroke:#C0392B,stroke-width:3px;
-    %% Procurement / Parts
-    style AwaitingParts stroke:#7E3FA8,stroke-width:3px;
-    %% Account Manager / Service Lead
-    style Monitoring    stroke:#B5277E,stroke-width:3px;
-    %% Client
-    style Canceled      stroke:#5B6B7B,stroke-width:3px;
+    style WaitingSales    stroke:#D9690C,stroke-width:3px;
+    %% Inventory Controller
+    style AwaitingParts   stroke:#7E3FA8,stroke-width:3px;

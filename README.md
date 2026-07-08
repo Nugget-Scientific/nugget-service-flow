@@ -15,16 +15,17 @@ The flowchart maps a service ticket from intake to close:
   "shoulder taps." All land in Triage.
 - **Lifecycle** (blue) — the happy path: Triage → Scheduling Required →
   Tentatively/Pending → Booked → Working → Resolved → Report Sent → Closed.
-- **Exception / off-ramp** (tan) — Awaiting Info, Awaiting Parts, Escalated to
-  SME, Monitoring, and Client Canceled, with the edges back into the queue.
+- **Exception / off-ramp** (tan) — Waiting on Sales, Waiting on Customer,
+  Awaiting Parts, Escalated to SME, Monitoring, and Client Canceled, with the
+  edges back into the queue.
 - **Closed** (green) — the terminal state, with dashed follow-up loops that open
   a fresh ticket back at Triage.
 
 Each process node is **dual-encoded**: the *fill* is its phase (above) and the
 *border color* is the owning role — Dispatcher/Scheduler, Field Engineer, Sales,
-SME, Procurement/Parts, Account Mgr/Service Lead, or Client. The owner key runs
-across the bottom of the page and the exported PNG. (The ownership mapping is a
-strawman pending sign-off; recolor via the `style ...` lines at the bottom of
+or Inventory Controller. The owner key runs across the bottom of the page and the
+exported PNG. (Each border is set from the stage's documented owner in the
+Service Scheduling Process; recolor via the `style ...` lines at the bottom of
 the `.mmd`.)
 
 ## Viewing
